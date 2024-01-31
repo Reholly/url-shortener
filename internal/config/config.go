@@ -1,40 +1,46 @@
 package config
 
 import (
-	"github.com/ilyakaznacheev/cleanenv"
+	"gopkg.in/yaml.v3"
 	"log"
 	"os"
-	"time"
 )
 
 type Config struct {
-	Env         string `yaml:"env" env:"ENV" env-default:"development"`
-	StoragePath string `yaml:"storage_path" env-required:"true"`
-	HttpServer  `yaml:"http_server"`
+	Database `yaml:"database"`
 }
 
-type HttpServer struct {
-	Address     string        `yaml:"address" env-default:"localhost:8020"`
-	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
-	IdleTimeout time.Duration `yaml:"idle-timeout" env-default:"60s"`
+type Database struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
 }
 
-func MustLoad() *Config {
-	configPath := os.Getenv("CONFIG_PATH")
+func NewConfig() *Config {
+	return &Config{
+		Database{
+			Host:     "",
+			Port:     "",
+			Password: "",
+			User:     "",
+		},
+	}
+}
 
-	if configPath == "" {
-		log.Fatal("CONFIG_PATH does not found")
+func LoadConfig() *Config {
+	config := NewConfig()
+	file, err := os.ReadFile("././config/app.yaml")
+
+	if err != nil {
+		panic("Config not found!")
 	}
 
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		log.Fatalf("config file %s does not exist", configPath)
+	err = yaml.Unmarshal(file, config)
+
+	if err != nil {
+		log.Fatalf("Config con not be unmarshal: %v", err)
 	}
 
-	var cfg Config
-
-	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		log.Fatalf("cannot read config %s", err)
-	}
-
-	return &cfg
+	return config
 }
