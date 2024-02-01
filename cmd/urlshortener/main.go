@@ -7,5 +7,5 @@ import (
 
 func main() {
 	cfg := config.LoadConfig()
-	fmt.Println(cfg)
+	fmt.Println(cfg.ConnectionString)
 }

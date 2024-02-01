@@ -2,34 +2,16 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
-	"log"
+	"log/slog"
 	"os"
 )
 
 type Config struct {
-	Database `yaml:"database"`
-}
-
-type Database struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-}
-
-func NewConfig() *Config {
-	return &Config{
-		Database{
-			Host:     "",
-			Port:     "",
-			Password: "",
-			User:     "",
-		},
-	}
+	ConnectionString string `yaml:"connectionString"`
 }
 
 func LoadConfig() *Config {
-	config := NewConfig()
+	config := &Config{}
 	file, err := os.ReadFile("././config/app.yaml")
 
 	if err != nil {
@@ -39,7 +21,7 @@ func LoadConfig() *Config {
 	err = yaml.Unmarshal(file, config)
 
 	if err != nil {
-		log.Fatalf("Config con not be unmarshal: %v", err)
+		slog.Error("Config con not be unmarshal: %v", err)
 	}
 
 	return config
