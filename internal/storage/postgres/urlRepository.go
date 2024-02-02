@@ -4,6 +4,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"urlshortener/internal/domain"
+	"urlshortener/internal/storage"
 )
 
 type UrlRepositoryContract interface {
@@ -39,7 +40,7 @@ func (r *UrlRepository) GetByAlias(alias string) (domain.Url, error) {
 	err := r.db.Select(&url, "select u.id, u.url, u.alias from url u where u.alias = $1 limit 1 ", alias)
 
 	if err != nil {
-		return url, NotFoundErr
+		return url, storage.NotFoundErr
 	}
 
 	return url, nil
