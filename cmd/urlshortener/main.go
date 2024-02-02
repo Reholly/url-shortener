@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"urlshortener/internal/config"
+	"urlshortener/internal/storage"
 )
 
 func main() {
 	cfg := config.LoadConfig()
-	fmt.Println(cfg.ConnectionString)
+
+	db := storage.New(cfg.ConnectionString)
+	fmt.Println(db)
 }
