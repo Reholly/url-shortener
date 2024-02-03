@@ -11,12 +11,11 @@ type generateAgainRequest struct {
 }
 
 type GenerateAgainHandler struct {
-	Address string
 	UrlRepo storage.UrlRepositoryContract
 }
 
-func NewGenerateAgainHandler(address string, repo storage.UrlRepositoryContract) *GenerateAgainHandler {
-	return &GenerateAgainHandler{Address: address, UrlRepo: repo}
+func NewGenerateAgainHandler(repo storage.UrlRepositoryContract) *GenerateAgainHandler {
+	return &GenerateAgainHandler{UrlRepo: repo}
 }
 
 func (h *GenerateAgainHandler) GenerateAgain(c echo.Context) error {
@@ -32,7 +31,7 @@ func (h *GenerateAgainHandler) GenerateAgain(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	addUrlHandler := NewAddUrlHandler(h.Address, h.UrlRepo)
+	addUrlHandler := NewAddUrlHandler(h.UrlRepo)
 	url.Alias = addUrlHandler.CreateUrlAlias()
 
 	err = h.UrlRepo.Update(url)

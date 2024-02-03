@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/labstack/echo/v4"
-	"net/http"
 	"urlshortener/internal/server/handlers"
 	"urlshortener/internal/storage"
 )
@@ -18,18 +17,15 @@ func New(repo storage.UrlRepositoryContract) *Server {
 func (s *Server) RunServer(address string) {
 	e := echo.New()
 
-	addUrlHandler := handlers.NewAddUrlHandler(address, s.urlRepository)
+	addUrlHandler := handlers.NewAddUrlHandler(s.urlRepository)
 	getByAliasHandler := handlers.NewGetUrlByAliasHandler(s.urlRepository)
 	redirectHandler := handlers.NewRedirectOnUrlHandler(s.urlRepository)
 	removeUrlHandler := handlers.NewRemoveUrlHandler(s.urlRepository)
-	generateAgainHandler := handlers.NewGenerateAgainHandler(address, s.urlRepository)
+	generateAgainHandler := handlers.NewGenerateAgainHandler(s.urlRepository)
 
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, "hello world")
-	})
 	e.POST("/add", addUrlHandler.AddUrl)
 	e.GET("/getByAlias", getByAliasHandler.GetUrlByAlias)
-	e.GET("/redirect/*", redirectHandler.RedirectOnUrl)
+	e.GET("/", redirectHandler.RedirectOnUrl)
 	e.POST("/remove", removeUrlHandler.RemoveUrl)
 	e.POST("/generateAgain", generateAgainHandler.GenerateAgain)
 

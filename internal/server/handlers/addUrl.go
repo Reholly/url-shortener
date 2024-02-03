@@ -16,12 +16,11 @@ type addUrlRequest struct {
 }
 
 type AddUrlHandler struct {
-	UrlRepo       storage.UrlRepositoryContract
-	urlStartsWith string
+	UrlRepo storage.UrlRepositoryContract
 }
 
-func NewAddUrlHandler(startsWith string, repo storage.UrlRepositoryContract) *AddUrlHandler {
-	return &AddUrlHandler{urlStartsWith: startsWith, UrlRepo: repo}
+func NewAddUrlHandler(repo storage.UrlRepositoryContract) *AddUrlHandler {
+	return &AddUrlHandler{UrlRepo: repo}
 }
 
 func (h *AddUrlHandler) AddUrl(c echo.Context) error {
@@ -31,7 +30,6 @@ func (h *AddUrlHandler) AddUrl(c echo.Context) error {
 	}
 
 	alias := h.CreateUrlAlias()
-
 	err := h.UrlRepo.Add(domain.Url{Alias: alias, Url: req.Url})
 
 	if err != nil {
@@ -51,5 +49,5 @@ func (h *AddUrlHandler) CreateUrlAlias() string {
 
 	rndStr := string(b)
 
-	return h.urlStartsWith + rndStr
+	return rndStr
 }

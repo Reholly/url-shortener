@@ -26,6 +26,11 @@ func (h *RemoveUrlHandler) RemoveUrl(c echo.Context) error {
 	}
 
 	url, err := h.UrlRepo.GetByUrl(req.Url)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	err = h.UrlRepo.Delete(url)
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
