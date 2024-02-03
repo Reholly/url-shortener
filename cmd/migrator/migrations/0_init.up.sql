@@ -1,0 +1,5 @@
+create table  url (
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    url VARCHAR(512) NOT NULL,
+    alias VARCHAR(256) NOT NULL
+);

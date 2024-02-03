@@ -1,14 +1,8 @@
 package main
 
-import (
-	"fmt"
-	"urlshortener/internal/config"
-	"urlshortener/internal/storage"
-)
+import "urlshortener/internal/app"
 
 func main() {
-	cfg := config.LoadConfig()
-
-	db := storage.New(cfg.ConnectionString)
-	fmt.Println(db)
+	app := app.New()
+	app.Run()
 }

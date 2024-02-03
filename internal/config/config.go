@@ -8,6 +8,8 @@ import (
 
 type Config struct {
 	ConnectionString string `yaml:"connectionString"`
+	MigrationsPath   string `yaml:"migrationsPath"`
+	Address          string `yaml:"address"`
 }
 
 func LoadConfig() *Config {
