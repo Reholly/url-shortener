@@ -25,7 +25,7 @@ func (s *Server) RunServer(address string) {
 
 	e.POST("/add", addUrlHandler.AddUrl)
 	e.GET("/getByAlias", getByAliasHandler.GetUrlByAlias)
-	e.GET("/", redirectHandler.RedirectOnUrl)
+	e.GET("/*", redirectHandler.RedirectOnUrl)
 	e.POST("/remove", removeUrlHandler.RemoveUrl)
 	e.POST("/generateAgain", generateAgainHandler.GenerateAgain)
 

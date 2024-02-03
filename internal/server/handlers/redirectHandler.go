@@ -21,5 +21,6 @@ func (h *RedirectOnUrlHandler) RedirectOnUrl(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	return c.Redirect(http.StatusPermanentRedirect, url.Url)
 }

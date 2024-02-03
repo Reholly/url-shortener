@@ -30,14 +30,14 @@ func (r *UrlRepository) GetAll() ([]domain.Url, error) {
 }
 
 func (r *UrlRepository) GetByAlias(alias string) (domain.Url, error) {
-	var url domain.Url
-	err := r.db.Select(&url, "select u.id, u.url, u.alias from url u where u.alias = $1 limit 1 ", alias)
+	var url []domain.Url
+	err := r.db.Select(&url, "select u.id, u.url, u.alias from url u where u.alias = $1 ", alias)
 
 	if err != nil {
-		return url, storage.NotFoundErr
+		return domain.Url{}, storage.NotFoundErr
 	}
 
-	return url, nil
+	return url[0], nil
 }
 
 func (r *UrlRepository) GetByUrl(url string) (domain.Url, error) {
