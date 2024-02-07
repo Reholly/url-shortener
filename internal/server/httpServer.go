@@ -21,13 +21,11 @@ func (s *Server) RunServer(address string) {
 	getByAliasHandler := handlers.NewGetUrlByAliasHandler(s.urlRepository)
 	redirectHandler := handlers.NewRedirectOnUrlHandler(s.urlRepository)
 	removeUrlHandler := handlers.NewRemoveUrlHandler(s.urlRepository)
-	generateAgainHandler := handlers.NewGenerateAgainHandler(s.urlRepository)
 
 	e.POST("/add", addUrlHandler.AddUrl)
-	e.GET("/getByAlias", getByAliasHandler.GetUrlByAlias)
-	e.GET("/*", redirectHandler.RedirectOnUrl)
+	e.GET("/get", getByAliasHandler.GetUrlByAlias)
+	e.GET("/:alias", redirectHandler.RedirectOnUrl)
 	e.POST("/remove", removeUrlHandler.RemoveUrl)
-	e.POST("/generateAgain", generateAgainHandler.GenerateAgain)
 
 	err := e.Start(address)
 

@@ -8,28 +8,27 @@ import (
 )
 
 type App struct {
-	UrlRepo storage.UrlRepositoryContract
-	Config  config.Config
+	Config config.Config
 }
 
 func New() *App {
 	cfg := config.LoadConfig()
 
-	database := storage.New(*cfg)
+	return &App{Config: *cfg}
+}
 
+func (a *App) Run() {
+	database := storage.NewStorage(a.Config)
 	db, err := database.Open()
+	defer db.Close()
+
+	//di
+	urlRepo := bindUrlRepository(*postgres.NewUrlRepository(db))
+	ser := server.New(urlRepo)
 
 	if err != nil {
 		panic(err)
 	}
-
-	urlRepo := bindUrlRepository(*postgres.NewUrlRepository(db))
-
-	return &App{UrlRepo: urlRepo, Config: *cfg}
-}
-
-func (a *App) Run() {
-	ser := server.New(a.UrlRepo)
 
 	ser.RunServer(a.Config.Address)
 }

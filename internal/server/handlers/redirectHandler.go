@@ -6,6 +6,10 @@ import (
 	"urlshortener/internal/storage"
 )
 
+const (
+	queryAliasParam = "alias"
+)
+
 type RedirectOnUrlHandler struct {
 	UrlRepo storage.UrlRepositoryContract
 }
@@ -15,9 +19,10 @@ func NewRedirectOnUrlHandler(repo storage.UrlRepositoryContract) *RedirectOnUrlH
 }
 
 func (h *RedirectOnUrlHandler) RedirectOnUrl(c echo.Context) error {
-	alias := c.QueryParam("alias")
+	alias := c.Param(queryAliasParam)
 
 	url, err := h.UrlRepo.GetByAlias(alias)
+
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}

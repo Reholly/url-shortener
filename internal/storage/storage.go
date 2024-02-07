@@ -13,7 +13,7 @@ type Storage struct {
 	UrlRepository    UrlRepositoryContract
 }
 
-func New(cfg config.Config) *Storage {
+func NewStorage(cfg config.Config) *Storage {
 	return &Storage{
 		connectionString: cfg.ConnectionString,
 	}

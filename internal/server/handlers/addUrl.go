@@ -2,18 +2,12 @@ package handlers
 
 import (
 	"github.com/labstack/echo/v4"
-	"math/rand"
 	"net/http"
-	"time"
 	"urlshortener/internal/domain"
+	"urlshortener/internal/server/dto"
 	"urlshortener/internal/storage"
+	"urlshortener/internal/utils"
 )
-
-const size = 10
-
-type addUrlRequest struct {
-	Url string `json:"url" bson:"url"`
-}
 
 type AddUrlHandler struct {
 	UrlRepo storage.UrlRepositoryContract
@@ -24,30 +18,16 @@ func NewAddUrlHandler(repo storage.UrlRepositoryContract) *AddUrlHandler {
 }
 
 func (h *AddUrlHandler) AddUrl(c echo.Context) error {
-	req := new(addUrlRequest)
+	req := new(dto.UrlDto)
 	if err := c.Bind(req); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	alias := h.CreateUrlAlias()
-	err := h.UrlRepo.Add(domain.Url{Alias: alias, Url: req.Url})
+	alias := utils.GenerateUrlAlias()
 
-	if err != nil {
+	if err := h.UrlRepo.Add(domain.Url{Alias: alias, Url: req.Url}); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, req)
 
-}
-
-func (h *AddUrlHandler) CreateUrlAlias() string {
-	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-	b := make([]rune, size)
-	for i := range b {
-		b[i] = chars[rnd.Intn(len(chars))]
-	}
-
-	rndStr := string(b)
-
-	return rndStr
+	return c.JSON(http.StatusOK, nil)
 }
