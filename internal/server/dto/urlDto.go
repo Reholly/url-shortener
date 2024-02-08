@@ -1,5 +1,5 @@
 package dto
 
 type UrlDto struct {
-	Url string `json:"url" bson:"url"`
+	Url string `json:"url"`
 }

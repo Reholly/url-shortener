@@ -3,45 +3,48 @@ package postgres
 import (
 	"github.com/jackc/pgconn"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 	"github.com/pkg/errors"
-	"urlshortener/internal/domain"
-	"urlshortener/internal/storage"
+	"url-shortener/internal/domain/entities"
+	"url-shortener/internal/domain/repositories"
+	"url-shortener/internal/storage"
 )
+
+const alreadyExistsErrorCode = "23505"
 
 type UrlRepository struct {
 	db *sqlx.DB
 }
 
-func NewUrlRepository(db *sqlx.DB) *UrlRepository {
-	return &UrlRepository{
-		db: db,
-	}
+func NewUrlRepository(db *sqlx.DB) repositories.UrlRepositoryContract {
+	repo := &UrlRepository{db: db}
+	return repo
 }
 
-func (r *UrlRepository) GetAll() ([]domain.Url, error) {
-	urlEntities := make([]domain.Url, 0)
+func (r *UrlRepository) GetAll() ([]entities.Url, error) {
+	urlEntities := make([]entities.Url, 0)
 	err := r.db.Select(&urlEntities, "select * from url")
 
 	if err != nil {
-		return nil, errors.Wrap(err, "could not select")
+		return nil, err
 	}
 
 	return urlEntities, nil
 }
 
-func (r *UrlRepository) GetByAlias(alias string) (domain.Url, error) {
-	var url []domain.Url
+func (r *UrlRepository) GetByAlias(alias string) (entities.Url, error) {
+	var url []entities.Url
 	err := r.db.Select(&url, "select u.id, u.url, u.alias from url u where u.alias = $1 ", alias)
 
 	if err != nil {
-		return domain.Url{}, storage.NotFoundErr
+		return entities.Url{}, storage.NotFoundErr
 	}
 
 	return url[0], nil
 }
 
-func (r *UrlRepository) GetByUrl(url string) (domain.Url, error) {
-	var urlEntity domain.Url
+func (r *UrlRepository) GetByUrl(url string) (entities.Url, error) {
+	var urlEntity entities.Url
 	err := r.db.Select(&urlEntity, "select u.id, u.url, u.alias from url u where u.url = $1 limit 1 ", url)
 
 	if err != nil {
@@ -51,24 +54,24 @@ func (r *UrlRepository) GetByUrl(url string) (domain.Url, error) {
 	return urlEntity, nil
 }
 
-func (r *UrlRepository) Add(url domain.Url) error {
-	err := r.db.QueryRow("insert into url (url, alias) values ($1,$2)", url.Url, url.Alias)
+func (r *UrlRepository) Add(url entities.Url) error {
+	row := r.db.QueryRow("insert into url (url, alias) values ($1,$2)", url.Url, url.Alias)
 
-	if err != nil {
+	if row.Err() != nil {
 		var pgxError *pgconn.PgError
 
-		if errors.As(err, &pgxError) {
-			if pgxError.Code == "23505" {
+		if errors.As(row.Err(), &pgxError) {
+			if pgxError.Code == alreadyExistsErrorCode {
 				return storage.AlreadyExistsErr
 			}
 		}
-		return err
+		return row.Err()
 	}
 
 	return nil
 }
 
-func (r *UrlRepository) Delete(url domain.Url) error {
+func (r *UrlRepository) Delete(url entities.Url) error {
 	_, err := r.GetByAlias(url.Alias)
 
 	if err != nil {
@@ -83,7 +86,7 @@ func (r *UrlRepository) Delete(url domain.Url) error {
 
 	return nil
 }
-func (r *UrlRepository) Update(url domain.Url) error {
+func (r *UrlRepository) Update(url entities.Url) error {
 	alias, err := r.GetByAlias(url.Alias)
 
 	if err != nil {

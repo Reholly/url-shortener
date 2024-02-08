@@ -1,10 +1,12 @@
 package app
 
 import (
-	"urlshortener/internal/config"
-	"urlshortener/internal/server"
-	"urlshortener/internal/storage"
-	"urlshortener/internal/storage/postgres"
+	"github.com/labstack/echo/v4"
+	"url-shortener/internal/config"
+	"url-shortener/internal/domain/repositories"
+	"url-shortener/internal/server/handlers"
+	"url-shortener/internal/storage"
+	"url-shortener/internal/storage/postgres"
 )
 
 type App struct {
@@ -18,21 +20,36 @@ func New() *App {
 }
 
 func (a *App) Run() {
-	database := storage.NewStorage(a.Config)
-	db, err := database.Open()
-	defer db.Close()
+	s := postgres.NewStorage(a.Config.DriverName, a.Config.ConnectionString)
 
-	//di
-	urlRepo := bindUrlRepository(*postgres.NewUrlRepository(db))
-	ser := server.New(urlRepo)
+	db, err := s.Open()
+	defer func(s storage.StorageContract) {
+		err := s.Close()
+		if err != nil {
+			panic(err.Error())
+		}
+	}(s)
 
 	if err != nil {
-		panic(err)
+		panic(err.Error())
 	}
 
-	ser.RunServer(a.Config.Address)
+	urlRepo := postgres.NewUrlRepository(db)
+
+	a.runServer(urlRepo)
 }
 
-func bindUrlRepository(repository postgres.UrlRepository) storage.UrlRepositoryContract {
-	return &repository
+func (a *App) runServer(urlRepo repositories.UrlRepositoryContract) {
+	e := echo.New()
+
+	e.POST("/add", handlers.AddUrl(urlRepo))
+	e.GET("/get", handlers.GetUrlByAlias(urlRepo))
+	e.GET("/:alias", handlers.RedirectOnUrl(urlRepo))
+	e.POST("/remove", handlers.RemoveUrl(urlRepo))
+
+	err := e.Start(a.Config.Address)
+
+	if err != nil {
+		panic(err.Error())
+	}
 }

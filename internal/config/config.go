@@ -2,19 +2,23 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
-	"log/slog"
 	"os"
+)
+
+const (
+	configPath = "././config/app.yaml"
 )
 
 type Config struct {
 	ConnectionString string `yaml:"connectionString"`
 	MigrationsPath   string `yaml:"migrationsPath"`
 	Address          string `yaml:"address"`
+	DriverName       string `yaml:"driverName"`
 }
 
 func LoadConfig() *Config {
 	config := &Config{}
-	file, err := os.ReadFile("././config/app.yaml")
+	file, err := os.ReadFile(configPath)
 
 	if err != nil {
 		panic("Config not found!")
@@ -23,7 +27,7 @@ func LoadConfig() *Config {
 	err = yaml.Unmarshal(file, config)
 
 	if err != nil {
-		slog.Error("Config con not be unmarshal: %v", err)
+		panic("Could not unmarshal config correct.")
 	}
 
 	return config
