@@ -1,4 +1,4 @@
-package domain
+package entities
 
 type Url struct {
 	Id    uint64 `db:"id"`

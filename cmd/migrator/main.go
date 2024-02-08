@@ -5,20 +5,24 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"urlshortener/internal/config"
+	"url-shortener/internal/config"
+)
+
+const (
+	filePath = "file://"
 )
 
 func main() {
 	cfg := config.LoadConfig()
 
 	m, err := migrate.New(
-		"file://"+cfg.MigrationsPath,
+		filePath+cfg.MigrationsPath,
 		cfg.ConnectionString,
 	)
 	defer func(m *migrate.Migrate) {
 		err, _ := m.Close()
 		if err != nil {
-
+			panic(err.Error())
 		}
 	}(m)
 
