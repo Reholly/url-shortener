@@ -1,7 +1,9 @@
 package app
 
 import (
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"url-shortener/internal/config"
 	"url-shortener/internal/domain/repositories"
 	"url-shortener/internal/server/handlers"
@@ -16,6 +18,9 @@ type App struct {
 func New() *App {
 	cfg := config.LoadConfig()
 
+	if err := godotenv.Load(); err != nil {
+		panic(err.Error())
+	}
 	return &App{Config: *cfg}
 }
 
@@ -41,6 +46,10 @@ func (a *App) Run() {
 
 func (a *App) runServer(urlRepo repositories.UrlRepositoryContract) {
 	e := echo.New()
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format:           "method=${method}, uri=${uri}, status=${status}\n",
+		CustomTimeFormat: "15:00:00 01-01-2024",
+	}))
 
 	e.POST("/add", handlers.AddUrl(urlRepo))
 	e.GET("/get", handlers.GetUrlByAlias(urlRepo))

@@ -23,7 +23,7 @@ func NewUrlRepository(db *sqlx.DB) repositories.UrlRepositoryContract {
 
 func (r *UrlRepository) GetAll() ([]entities.Url, error) {
 	urlEntities := make([]entities.Url, 0)
-	err := r.db.Select(&urlEntities, "select * from url")
+	err := r.db.Select(&urlEntities, "select u.id, u.url, u.alias from url u")
 
 	if err != nil {
 		return nil, err
@@ -93,7 +93,7 @@ func (r *UrlRepository) Update(url entities.Url) error {
 		return errors.Wrap(err, "could not get by alias")
 	}
 
-	_, err = r.db.Exec("update url set url = $1, alias = $2 url where id = $3", alias.Url, alias.Alias, alias.Id)
+	_, err = r.db.Exec("update url set url = $1, alias = $2 where id = $3", alias.Url, alias.Alias, alias.Id)
 
 	if err != nil {
 		var pgxError *pgconn.PgError

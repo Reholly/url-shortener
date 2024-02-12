@@ -16,7 +16,7 @@ const (
 func AddUrl(repo repositories.UrlRepositoryContract) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		var req dto.UrlDto
-		if err := c.Bind(req); err != nil {
+		if err := c.Bind(&req); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
