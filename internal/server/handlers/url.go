@@ -6,7 +6,7 @@ import (
 	"url-shortener/internal/domain/entities"
 	"url-shortener/internal/domain/repositories"
 	"url-shortener/internal/server/dto"
-	"url-shortener/internal/utils"
+	"url-shortener/lib"
 )
 
 const (
@@ -20,7 +20,7 @@ func AddUrl(repo repositories.UrlRepositoryContract) func(c echo.Context) error 
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 		}
 
-		alias := utils.GenerateUrlAlias()
+		alias := lib.GenerateUrlAlias()
 
 		if err := repo.Add(entities.Url{Alias: alias, Url: req.Url}); err != nil {
 			return echo.NewHTTPError(http.StatusBadRequest, err.Error())

@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -46,9 +47,14 @@ func (a *App) Run() {
 
 func (a *App) runServer(urlRepo repositories.UrlRepositoryContract) {
 	e := echo.New()
-	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format:           "method=${method}, uri=${uri}, status=${status}\n",
-		CustomTimeFormat: "15:00:00 01-01-2024",
+
+	e.Use(middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
+		LogStatus: true,
+		LogURI:    true,
+		LogValuesFunc: func(c echo.Context, v middleware.RequestLoggerValues) error {
+			fmt.Printf("REQUEST: uri: %v, status: %v, error: %v, method: %v\n", v.URI, v.Status, v.Error, v.Method)
+			return nil
+		},
 	}))
 
 	e.POST("/add", handlers.AddUrl(urlRepo))

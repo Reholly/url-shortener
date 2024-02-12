@@ -40,6 +40,10 @@ func (r *UrlRepository) GetByAlias(alias string) (entities.Url, error) {
 		return entities.Url{}, storage.NotFoundErr
 	}
 
+	if len(url) == 0 {
+		return entities.Url{}, nil
+	}
+
 	return url[0], nil
 }
 
