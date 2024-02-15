@@ -2,18 +2,17 @@ package lib
 
 import (
 	"math/rand"
-	"os"
 	"time"
 )
 
 const (
 	size      = 10
-	rndSource = "RND_SOURCE" //"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	rndSource = "BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 )
 
 func GenerateUrlAlias() string {
 	rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
-	chars := []rune(os.Getenv(rndSource))
+	chars := []rune(rndSource)
 	urlAlias := make([]rune, size)
 
 	for i := range urlAlias {
